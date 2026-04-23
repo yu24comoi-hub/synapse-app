@@ -5,14 +5,15 @@ import { store } from "@/lib/store";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { contentId: string } }
+  { params }: { params: Promise<{ contentId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const contentSession = store.get(params.contentId);
+  const { contentId } = await params;
+  const contentSession = store.get(contentId);
   if (!contentSession) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
