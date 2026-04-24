@@ -42,6 +42,17 @@ export const store = {
     return true;
   },
 
+  async addNextAnswer(contentId: string, answer: Answer): Promise<boolean> {
+    const session = await redis.get<ContentSession>(`content:${contentId}`);
+    if (!session) return false;
+    if (!session.nextQuestionAnswers) session.nextQuestionAnswers = [];
+    const idx = session.nextQuestionAnswers.findIndex((a) => a.memberId === answer.memberId);
+    if (idx >= 0) session.nextQuestionAnswers[idx] = answer;
+    else session.nextQuestionAnswers.push(answer);
+    await redis.set(`content:${contentId}`, session);
+    return true;
+  },
+
   async delete(contentId: string, groupId: string): Promise<void> {
     await redis.del(`content:${contentId}`);
     await redis.zrem(`group:${groupId}:contents`, contentId);

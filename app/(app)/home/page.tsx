@@ -35,12 +35,7 @@ export default async function HomePage() {
     <div className="space-y-6">
       {/* 今日のキュレーション */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">今日のキュレーション</h2>
-            {group && <p className="text-xs text-gray-400 mt-0.5">{group.name}</p>}
-          </div>
-        </div>
+        <h2 className="text-xl font-semibold text-gray-900">今日のキュレーション</h2>
 
         {!hasTodayCuration || !todayCuration ? (
           <DailyCurate />

@@ -165,7 +165,9 @@ export default function ContentPage() {
           <IntegratedFeedback
             contentId={params.contentId}
             existingFeedback={data.feedback}
+            existingNextAnswers={data.nextQuestionAnswers ?? []}
             onGenerated={(feedback: Feedback) => setData({ ...data, feedback })}
+            onNextAnswered={(nextQuestionAnswers) => setData({ ...data, nextQuestionAnswers })}
           />
 
           <button

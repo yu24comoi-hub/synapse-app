@@ -52,4 +52,5 @@ export type ContentSession = {
   question: string;
   answers: Answer[];
   feedback?: Feedback;
+  nextQuestionAnswers?: Answer[];
 };

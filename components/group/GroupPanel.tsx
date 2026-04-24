@@ -114,32 +114,46 @@ export default function GroupPanel({ group, inviteUrl, currentUserId }: Props) {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">招待リンク</p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            readOnly
-            value={currentUrl}
-            className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 font-mono truncate"
-          />
-          <button
-            onClick={copyInviteUrl}
-            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors shrink-0"
-          >
-            {copied ? "コピー済み" : "コピー"}
-          </button>
+      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">メンバーを招待する</p>
+
+        {/* 招待コード（大きく表示） */}
+        <div className="bg-indigo-50 rounded-xl p-4 text-center space-y-2">
+          <p className="text-xs text-indigo-400 font-medium">招待コード</p>
+          <p className="text-2xl font-mono font-bold text-indigo-800 tracking-widest">
+            {currentUrl.split("/join/")[1]}
+          </p>
+          <p className="text-xs text-indigo-400">セットアップ画面でこのコードを入力してください</p>
         </div>
+
+        {/* 招待リンク */}
+        <div className="space-y-2">
+          <p className="text-xs text-gray-500 font-medium">招待リンク（URLをそのまま共有）</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              readOnly
+              value={currentUrl}
+              className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 font-mono truncate"
+            />
+            <button
+              onClick={copyInviteUrl}
+              className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors shrink-0"
+            >
+              {copied ? "コピー済み ✓" : "コピー"}
+            </button>
+          </div>
+        </div>
+
         {currentUserId === group.ownerId && (
           <button
             onClick={regenerate}
             disabled={regenerating}
             className="text-xs text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
           >
-            {regenerating ? "更新中..." : "↻ 招待リンクを再生成（現在のリンクを無効化）"}
+            {regenerating ? "更新中..." : "↻ 招待コード・リンクを再生成（現在のものを無効化）"}
           </button>
         )}
-        <p className="text-xs text-gray-400">このリンクをグループメンバーに共有してください</p>
       </div>
     </div>
   );
