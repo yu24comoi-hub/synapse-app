@@ -15,6 +15,22 @@ export async function GET() {
   return NextResponse.json(group);
 }
 
+export async function PATCH(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const group = await groups.getByUserId(session.user.id);
+  if (!group) return NextResponse.json({ error: "Not in a group" }, { status: 404 });
+  if (group.ownerId !== session.user.id) {
+    return NextResponse.json({ error: "オーナーのみ変更できます" }, { status: 403 });
+  }
+  const { name } = await req.json();
+  if (!name?.trim()) return NextResponse.json({ error: "グループ名は必須です" }, { status: 400 });
+  await groups.rename(group.id, name.trim());
+  return NextResponse.json({ success: true });
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

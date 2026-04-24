@@ -41,4 +41,12 @@ export const store = {
     await redis.set(`content:${contentId}`, session);
     return true;
   },
+
+  async getLastCuratedAt(groupId: string): Promise<string | null> {
+    return redis.get<string>(`group:${groupId}:lastCuratedAt`);
+  },
+
+  async setLastCuratedAt(groupId: string, isoString: string): Promise<void> {
+    await redis.set(`group:${groupId}:lastCuratedAt`, isoString);
+  },
 };

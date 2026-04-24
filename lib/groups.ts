@@ -43,6 +43,13 @@ export const groups = {
     return group;
   },
 
+  async rename(groupId: string, newName: string): Promise<void> {
+    const group = await redis.get<Group>(`group:${groupId}`);
+    if (!group) throw new Error("Group not found");
+    group.name = newName;
+    await redis.set(`group:${groupId}`, group);
+  },
+
   async regenerateInvite(groupId: string): Promise<string> {
     const group = await redis.get<Group>(`group:${groupId}`);
     if (!group) throw new Error("Group not found");

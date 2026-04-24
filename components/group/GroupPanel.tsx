@@ -13,6 +13,11 @@ export default function GroupPanel({ group, inviteUrl, currentUserId }: Props) {
   const [regenerating, setRegenerating] = useState(false);
   const [currentUrl, setCurrentUrl] = useState(inviteUrl);
 
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(group.name);
+  const [currentName, setCurrentName] = useState(group.name);
+  const [savingName, setSavingName] = useState(false);
+
   async function copyInviteUrl() {
     await navigator.clipboard.writeText(currentUrl);
     setCopied(true);
@@ -30,12 +35,66 @@ export default function GroupPanel({ group, inviteUrl, currentUserId }: Props) {
     setRegenerating(false);
   }
 
+  async function saveName() {
+    if (!nameInput.trim() || nameInput === currentName) {
+      setEditingName(false);
+      return;
+    }
+    setSavingName(true);
+    const res = await fetch("/api/group", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: nameInput.trim() }),
+    });
+    if (res.ok) {
+      setCurrentName(nameInput.trim());
+    }
+    setSavingName(false);
+    setEditingName(false);
+  }
+
   return (
     <div className="space-y-5">
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <div>
           <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">グループ名</p>
-          <p className="text-lg font-semibold text-gray-900">{group.name}</p>
+          {editingName ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveName()}
+                autoFocus
+                className="flex-1 px-3 py-1.5 border border-indigo-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg font-semibold"
+              />
+              <button
+                onClick={saveName}
+                disabled={savingName || !nameInput.trim()}
+                className="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {savingName ? "保存中..." : "保存"}
+              </button>
+              <button
+                onClick={() => { setEditingName(false); setNameInput(currentName); }}
+                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200"
+              >
+                キャンセル
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-semibold text-gray-900">{currentName}</p>
+              {currentUserId === group.ownerId && (
+                <button
+                  onClick={() => setEditingName(true)}
+                  className="text-xs text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  ✎ 変更
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
@@ -47,12 +106,8 @@ export default function GroupPanel({ group, inviteUrl, currentUserId }: Props) {
               <li key={id} className="flex items-center gap-2 text-sm text-gray-700">
                 <span className="w-2 h-2 rounded-full bg-indigo-400 shrink-0" />
                 {group.memberNames[id] ?? id}
-                {id === group.ownerId && (
-                  <span className="text-xs text-gray-400">（オーナー）</span>
-                )}
-                {id === currentUserId && (
-                  <span className="text-xs text-indigo-500">（あなた）</span>
-                )}
+                {id === group.ownerId && <span className="text-xs text-gray-400">（オーナー）</span>}
+                {id === currentUserId && <span className="text-xs text-indigo-500">（あなた）</span>}
               </li>
             ))}
           </ul>
@@ -84,9 +139,7 @@ export default function GroupPanel({ group, inviteUrl, currentUserId }: Props) {
             {regenerating ? "更新中..." : "↻ 招待リンクを再生成（現在のリンクを無効化）"}
           </button>
         )}
-        <p className="text-xs text-gray-400">
-          このリンクをグループメンバーに共有してください
-        </p>
+        <p className="text-xs text-gray-400">このリンクをグループメンバーに共有してください</p>
       </div>
     </div>
   );
