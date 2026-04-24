@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { store } from "@/lib/store";
 import { memory } from "@/lib/memory";
+import { groups } from "@/lib/groups";
+import { generateFeedback } from "@/lib/claude";
 import type { Answer } from "@/types";
 
 export async function POST(req: Request) {
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  const contentSession = store.get(contentId);
+  const contentSession = await store.get(contentId);
   if (!contentSession) {
     return NextResponse.json({ error: "Content not found" }, { status: 404 });
   }
@@ -29,13 +31,26 @@ export async function POST(req: Request) {
     submittedAt: new Date().toISOString(),
   };
 
-  store.addAnswer(contentId, answer);
-  memory.record(
+  await store.addAnswer(contentId, answer);
+  await memory.record(
     session.user.id,
     session.user.name ?? "Anonymous",
     contentSession.content.title,
     text
   );
+
+  // 全員回答済みならバックグラウンドでフィードバック自動生成
+  const group = await groups.get(contentSession.content.groupId);
+  if (group) {
+    const updated = await store.get(contentId);
+    if (updated && updated.answers.length >= group.memberIds.length && !updated.feedback) {
+      void generateFeedback(
+        updated.content.title,
+        updated.question,
+        updated.answers.map((a) => ({ memberName: a.memberName, text: a.text }))
+      ).then((feedback) => store.setFeedback(contentId, feedback)).catch(() => {});
+    }
+  }
 
   return NextResponse.json({ success: true });
 }

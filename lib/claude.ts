@@ -42,6 +42,34 @@ export async function curate(memorySummary: string): Promise<{
   return JSON.parse(match[0]);
 }
 
+export async function generateQuestionForContent(
+  title: string,
+  summary: string
+): Promise<string> {
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: 256,
+    system: [
+      {
+        type: "text",
+        text: `メンバーが投稿したコンテンツに対してソクラテス式の問いを1つ作成してください。
+回答が分かれるような、yes/noで終わらない、思考を深める問いにしてください。
+問いの文章のみを返してください（前後に説明文は入れないこと）。`,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    messages: [
+      {
+        role: "user",
+        content: `タイトル：${title}\n内容：${summary}`,
+      },
+    ],
+  });
+
+  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  return text.trim();
+}
+
 export async function generateFeedback(
   contentTitle: string,
   question: string,

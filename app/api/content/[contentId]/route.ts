@@ -13,7 +13,7 @@ export async function GET(
   }
 
   const { contentId } = await params;
-  const contentSession = store.get(contentId);
+  const contentSession = await store.get(contentId);
   if (!contentSession) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

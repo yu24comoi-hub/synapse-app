@@ -18,9 +18,15 @@ export default function ContentCard({ session, userId }: Props) {
             <h3 className="font-semibold text-gray-900">{content.title}</h3>
             <p className="text-sm text-gray-500 mt-1 line-clamp-2">{content.summary}</p>
           </div>
-          <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium">
-            AI
-          </span>
+          {content.source === "ai" ? (
+            <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium">
+              AI
+            </span>
+          ) : (
+            <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-green-50 text-green-600 font-medium">
+              {content.postedBy?.name ?? "メンバー"}
+            </span>
+          )}
         </div>
         <div className="mt-4 flex items-center gap-3 text-xs text-gray-400">
           <span>{answers.length}名が回答</span>

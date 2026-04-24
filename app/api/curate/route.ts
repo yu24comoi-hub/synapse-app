@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { curate } from "@/lib/claude";
 import { memory } from "@/lib/memory";
 import { store } from "@/lib/store";
+import { groups } from "@/lib/groups";
+import { userSettings } from "@/lib/settings";
 import { randomUUID } from "crypto";
 import type { Content } from "@/types";
 
@@ -13,25 +15,32 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const memorySummary = memory.getSummaryForCuration();
-    const result = await curate(memorySummary);
-
-    const content: Content = {
-      id: randomUUID(),
-      title: result.title,
-      summary: result.summary,
-      url: result.url ?? undefined,
-      source: "ai",
-      groupId: "group-1",
-      createdAt: new Date().toISOString(),
-    };
-
-    store.add(content, result.question);
-
-    return NextResponse.json({ contentId: content.id, content, question: result.question });
-  } catch (e) {
-    console.error("Curation error:", e);
-    return NextResponse.json({ error: "Curation failed" }, { status: 500 });
+  const group = await groups.getByUserId(session.user.id);
+  if (!group) {
+    return NextResponse.json({ error: "グループに参加していません" }, { status: 400 });
   }
+
+  const settingsList = await Promise.all(
+    group.memberIds.map((id) => userSettings.get(id))
+  );
+  const settingsMap = Object.fromEntries(
+    group.memberIds.map((id, i) => [id, settingsList[i] ?? { userId: id, displayName: "", interests: [] }])
+  );
+
+  const memorySummary = await memory.getSummaryForCuration(group.memberIds, settingsMap);
+  const result = await curate(memorySummary);
+
+  const content: Content = {
+    id: randomUUID(),
+    title: result.title,
+    summary: result.summary,
+    url: result.url ?? undefined,
+    source: "ai",
+    groupId: group.id,
+    createdAt: new Date().toISOString(),
+  };
+
+  await store.add(content, result.question);
+
+  return NextResponse.json({ contentId: content.id, content, question: result.question });
 }

@@ -1,25 +1,35 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { groups } from "@/lib/groups";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/");
 
+  const group = await groups.getByUserId(session.user.id);
+  if (!group) redirect("/setup");
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <a href="/home" className="text-xl font-bold text-indigo-600 tracking-tight">
+          <Link href="/home" className="text-xl font-bold text-indigo-600 tracking-tight">
             Synapse
-          </a>
-          <div className="flex items-center gap-2">
+          </Link>
+          <nav className="flex items-center gap-3">
+            <Link href="/group" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+              グループ
+            </Link>
+            <Link href="/settings" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+              設定
+            </Link>
             {session.user.image && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />
             )}
-            <span className="text-sm text-gray-600">{session.user.name}</span>
-          </div>
+          </nav>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-6">{children}</main>

@@ -5,12 +5,29 @@ export type Member = {
   image?: string;
 };
 
+export type Group = {
+  id: string;
+  name: string;
+  ownerId: string;
+  memberIds: string[];
+  memberNames: Record<string, string>;
+  inviteCode: string;
+  createdAt: string;
+};
+
+export type UserSettings = {
+  userId: string;
+  displayName: string;
+  interests: string[];
+};
+
 export type Content = {
   id: string;
   title: string;
   summary: string;
   url?: string;
   source: "ai" | "member";
+  postedBy?: { id: string; name: string; comment?: string };
   groupId: string;
   createdAt: string;
 };

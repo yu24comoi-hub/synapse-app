@@ -1,41 +1,44 @@
+import { redis } from "./redis";
 import type { Content, Answer, Feedback, ContentSession } from "@/types";
 
-// プロトタイプ用インメモリストア。サーバー再起動でリセットされる。
-const sessions = new Map<string, ContentSession>();
-
 export const store = {
-  add(content: Content, question: string): void {
-    sessions.set(content.id, { content, question, answers: [] });
+  async add(content: Content, question: string): Promise<void> {
+    const session: ContentSession = { content, question, answers: [] };
+    await redis.set(`content:${content.id}`, session);
+    await redis.zadd(`group:${content.groupId}:contents`, {
+      score: new Date(content.createdAt).getTime(),
+      member: content.id,
+    });
   },
 
-  getAll(): ContentSession[] {
-    return Array.from(sessions.values()).sort(
-      (a, b) =>
-        new Date(b.content.createdAt).getTime() -
-        new Date(a.content.createdAt).getTime()
+  async getAll(groupId: string): Promise<ContentSession[]> {
+    const ids = await redis.zrange(`group:${groupId}:contents`, 0, -1, { rev: true });
+    if (!ids.length) return [];
+    const sessions = await Promise.all(
+      (ids as string[]).map((id) => redis.get<ContentSession>(`content:${id}`))
     );
+    return sessions.filter(Boolean) as ContentSession[];
   },
 
-  get(contentId: string): ContentSession | undefined {
-    return sessions.get(contentId);
+  async get(contentId: string): Promise<ContentSession | null> {
+    return redis.get<ContentSession>(`content:${contentId}`);
   },
 
-  addAnswer(contentId: string, answer: Answer): boolean {
-    const session = sessions.get(contentId);
+  async addAnswer(contentId: string, answer: Answer): Promise<boolean> {
+    const session = await redis.get<ContentSession>(`content:${contentId}`);
     if (!session) return false;
     const idx = session.answers.findIndex((a) => a.memberId === answer.memberId);
-    if (idx >= 0) {
-      session.answers[idx] = answer;
-    } else {
-      session.answers.push(answer);
-    }
+    if (idx >= 0) session.answers[idx] = answer;
+    else session.answers.push(answer);
+    await redis.set(`content:${contentId}`, session);
     return true;
   },
 
-  setFeedback(contentId: string, feedback: Feedback): boolean {
-    const session = sessions.get(contentId);
+  async setFeedback(contentId: string, feedback: Feedback): Promise<boolean> {
+    const session = await redis.get<ContentSession>(`content:${contentId}`);
     if (!session) return false;
     session.feedback = feedback;
+    await redis.set(`content:${contentId}`, session);
     return true;
   },
 };

@@ -46,11 +46,22 @@ export default function ContentPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-start gap-2 mb-1">
-          <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium mt-0.5">
-            AI
-          </span>
+          {data.content.source === "ai" ? (
+            <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium mt-0.5">
+              AI
+            </span>
+          ) : (
+            <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-green-50 text-green-600 font-medium mt-0.5">
+              {data.content.postedBy?.name ?? "メンバー"}
+            </span>
+          )}
           <h1 className="text-2xl font-bold text-gray-900">{data.content.title}</h1>
         </div>
+        {data.content.source === "member" && data.content.postedBy?.comment && (
+          <p className="text-sm text-gray-500 ml-10 mb-1 italic">
+            「{data.content.postedBy.comment}」
+          </p>
+        )}
         {data.content.url && (
           <a
             href={data.content.url}
