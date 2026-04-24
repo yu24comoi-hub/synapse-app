@@ -79,6 +79,9 @@ export default function SetupPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Synapse</h1>
           <p className="text-gray-500 mt-2">グループを作成するか、招待コードで参加してください</p>
+          <a href="/home" className="text-xs text-indigo-500 hover:underline mt-1 inline-block">
+            ← 既存のグループに戻る
+          </a>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">

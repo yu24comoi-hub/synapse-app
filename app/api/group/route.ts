@@ -37,11 +37,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const existing = await groups.getByUserId(session.user.id);
-  if (existing) {
-    return NextResponse.json({ error: "Already in a group" }, { status: 400 });
-  }
-
   const { name } = await req.json();
   if (!name?.trim()) {
     return NextResponse.json({ error: "Group name required" }, { status: 400 });

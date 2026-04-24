@@ -3,13 +3,18 @@ import { authOptions } from "@/lib/auth";
 import { groups } from "@/lib/groups";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import GroupSwitcher from "@/components/group/GroupSwitcher";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/");
 
-  const group = await groups.getByUserId(session.user.id);
-  if (!group) redirect("/setup");
+  const [activeGroup, userGroups] = await Promise.all([
+    groups.getByUserId(session.user.id),
+    groups.getAllForUser(session.user.id),
+  ]);
+
+  if (!activeGroup) redirect("/setup");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,12 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             Synapse
           </Link>
           <nav className="flex items-center gap-3">
-            <Link
-              href="/settings"
-              className="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium"
-            >
-              {group.name}
-            </Link>
+            <GroupSwitcher groups={userGroups} activeGroupId={activeGroup.id} />
             <Link href="/settings" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
               設定
             </Link>
