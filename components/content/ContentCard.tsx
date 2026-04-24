@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ContentSession } from "@/types";
+import { getSourceName } from "@/lib/utils";
 
 type Props = {
   session: ContentSession;
@@ -9,6 +10,7 @@ type Props = {
 export default function ContentCard({ session, userId }: Props) {
   const { content, answers, feedback } = session;
   const hasAnswered = answers.some((a) => a.memberId === userId);
+  const sourceName = getSourceName(content.url);
 
   return (
     <Link href={`/content/${content.id}`}>
@@ -17,6 +19,9 @@ export default function ContentCard({ session, userId }: Props) {
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900">{content.title}</h3>
             <p className="text-sm text-gray-500 mt-1 line-clamp-2">{content.summary}</p>
+            {sourceName && (
+              <p className="text-xs text-gray-400 mt-1.5">🔗 {sourceName}</p>
+            )}
           </div>
           {content.source === "ai" ? (
             <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium">
@@ -30,15 +35,9 @@ export default function ContentCard({ session, userId }: Props) {
         </div>
         <div className="mt-4 flex items-center gap-3 text-xs text-gray-400">
           <span>{answers.length}名が回答</span>
-          {hasAnswered && (
-            <span className="text-green-600 font-medium">✓ 回答済み</span>
-          )}
-          {feedback && (
-            <span className="text-indigo-600 font-medium">✦ フィードバック生成済み</span>
-          )}
-          {!hasAnswered && (
-            <span className="text-amber-600 font-medium">→ 回答してください</span>
-          )}
+          {hasAnswered && <span className="text-green-600 font-medium">✓ 回答済み</span>}
+          {feedback && <span className="text-indigo-600 font-medium">✦ フィードバック生成済み</span>}
+          {!hasAnswered && <span className="text-amber-600 font-medium">→ 回答してください</span>}
         </div>
       </div>
     </Link>

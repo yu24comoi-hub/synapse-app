@@ -19,10 +19,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             Synapse
           </Link>
           <nav className="flex items-center gap-3">
-            <Link href="/group" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
-              グループ
+            <Link
+              href="/settings"
+              className="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium"
+            >
+              {group.name}
             </Link>
-            <Link href="/settings" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+            <Link href="/settings" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
               設定
             </Link>
             {session.user.image && (

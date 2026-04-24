@@ -25,7 +25,7 @@ export async function curate(memorySummary: string): Promise<{
   "title": "コンテンツのタイトル（30字以内）",
   "summary": "内容の要約（150字以内）",
   "url": "参照URL（不明の場合はnull）",
-  "question": "ソクラテス式の問い（1文。メンバーの回答が分かれるような、yes/noで終わらない問い）"
+  "question": "短い問い（25字以内。日常会話の口調で、忙しい人でも2〜3文で答えられる問い。例：「直感的に賛成？反対？」「あなたの仕事に関係ある？」「もし自分ごとだったら？」）"
 }`,
         cache_control: { type: "ephemeral" },
       },
@@ -54,8 +54,9 @@ export async function generateQuestionForContent(
     system: [
       {
         type: "text",
-        text: `メンバーが投稿したコンテンツに対してソクラテス式の問いを1つ作成してください。
-回答が分かれるような、yes/noで終わらない、思考を深める問いにしてください。
+        text: `メンバーが投稿したコンテンツに対して、短い問いを1つ作成してください。
+25字以内、日常会話の口調で、忙しい人でも2〜3文で答えられる問いにしてください。
+例：「直感的に賛成？反対？」「あなたの仕事に関係ある？」「もし自分ごとだったら？」
 問いの文章のみを返してください（前後に説明文は入れないこと）。`,
         cache_control: { type: "ephemeral" },
       },

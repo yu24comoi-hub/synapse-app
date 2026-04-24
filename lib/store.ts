@@ -42,6 +42,11 @@ export const store = {
     return true;
   },
 
+  async delete(contentId: string, groupId: string): Promise<void> {
+    await redis.del(`content:${contentId}`);
+    await redis.zrem(`group:${groupId}:contents`, contentId);
+  },
+
   async getLastCuratedAt(groupId: string): Promise<string | null> {
     return redis.get<string>(`group:${groupId}:lastCuratedAt`);
   },
