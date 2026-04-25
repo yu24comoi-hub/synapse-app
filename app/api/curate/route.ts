@@ -7,6 +7,7 @@ import { store } from "@/lib/store";
 import { groups } from "@/lib/groups";
 import { userSettings } from "@/lib/settings";
 import { randomUUID } from "crypto";
+import { notifications } from "@/lib/notifications";
 import type { Content } from "@/types";
 
 function todayJST(): string {
@@ -56,6 +57,14 @@ export async function POST() {
 
   await store.add(content, result.question);
   await store.setLastCuratedAt(group.id, content.createdAt);
+
+  // グループ全員に通知
+  void notifications.create(
+    group.memberIds,
+    "new_curation",
+    `新しいトピック「${content.title}」が届きました`,
+    content.id
+  );
 
   return NextResponse.json({ contentId: content.id, content, question: result.question });
 }

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { ContentSession } from "@/types";
+import StockButton from "./StockButton";
 
 type Props = {
   session: ContentSession;
   userId: string;
+  isStocked: boolean;
 };
 
-export default function TodayCurationCard({ session, userId }: Props) {
+export default function TodayCurationCard({ session, userId, isStocked }: Props) {
   const { content, answers, feedback } = session;
   const hasAnswered = answers.some((a) => a.memberId === userId);
 
@@ -15,19 +17,28 @@ export default function TodayCurationCard({ session, userId }: Props) {
       <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl p-6 text-white hover:from-indigo-700 hover:to-indigo-800 transition-all cursor-pointer shadow-md">
         <div className="flex items-start justify-between gap-4 mb-3">
           <h3 className="font-bold text-xl leading-snug">{content.title}</h3>
-          <span className="shrink-0 text-xs px-2.5 py-1 rounded-full bg-white/20 font-medium">AI</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <StockButton contentId={content.id} initialStocked={isStocked} size="md" />
+            <span className="text-xs px-2.5 py-1 rounded-full bg-white/20 font-medium">AI</span>
+          </div>
         </div>
         <p className="text-indigo-100 text-sm leading-relaxed line-clamp-3">{content.summary}</p>
         {content.url && (
           <p className="text-indigo-300 text-xs mt-2 truncate">🔗 {content.url}</p>
         )}
-        <div className="mt-4 flex items-center gap-3 text-xs text-indigo-200">
-          <span>{answers.length}名が回答</span>
-          {hasAnswered ? (
-            <span className="text-green-300 font-medium">✓ 回答済み</span>
+        <div className="mt-4 flex items-center gap-3 text-xs">
+          {!hasAnswered ? (
+            <span className="flex items-center gap-1.5 bg-amber-400/20 text-amber-200 px-3 py-1.5 rounded-full font-semibold">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+              </span>
+              回答してください
+            </span>
           ) : (
-            <span className="text-amber-300 font-medium">→ 回答する</span>
+            <span className="text-green-300 font-medium">✓ 回答済み</span>
           )}
+          <span className="text-indigo-200">{answers.length}名が回答</span>
           {feedback && <span className="text-purple-300 font-medium">✦ FB生成済み</span>}
         </div>
       </div>

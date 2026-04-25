@@ -4,6 +4,7 @@ import { groups } from "@/lib/groups";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import GroupSwitcher from "@/components/group/GroupSwitcher";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -25,6 +26,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Link>
           <nav className="flex items-center gap-3">
             <GroupSwitcher groups={userGroups} activeGroupId={activeGroup.id} />
+            <Link href="/stock" className="text-sm text-gray-400 hover:text-gray-700 transition-colors" title="ストック">
+              🔖
+            </Link>
+            <NotificationBell />
             <Link href="/settings" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
               設定
             </Link>

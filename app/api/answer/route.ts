@@ -5,6 +5,7 @@ import { store } from "@/lib/store";
 import { memory } from "@/lib/memory";
 import { groups } from "@/lib/groups";
 import { generateFeedback } from "@/lib/claude";
+import { notifications } from "@/lib/notifications";
 import type { Answer } from "@/types";
 
 export async function POST(req: Request) {
@@ -44,6 +45,13 @@ export async function POST(req: Request) {
   if (group) {
     const updated = await store.get(contentId);
     if (updated && updated.answers.length >= group.memberIds.length && !updated.feedback) {
+      // 全員回答 → 通知 + バックグラウンドでフィードバック生成
+      void notifications.create(
+        group.memberIds,
+        "all_answered",
+        `「${updated.content.title}」全員が回答しました。フィードバックを生成できます`,
+        contentId
+      );
       void generateFeedback(
         updated.content.title,
         updated.question,

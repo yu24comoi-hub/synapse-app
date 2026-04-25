@@ -6,6 +6,7 @@ import Link from "next/link";
 import QuestionPrompt from "@/components/dialogue/QuestionPrompt";
 import AnswerInput from "@/components/dialogue/AnswerInput";
 import IntegratedFeedback from "@/components/dialogue/IntegratedFeedback";
+import StockButton from "@/components/content/StockButton";
 import { getSourceName } from "@/lib/utils";
 import type { ContentSession, Feedback } from "@/types";
 
@@ -16,6 +17,7 @@ export default function ContentPage() {
   const [data, setData] = useState<ContentSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [stocked, setStocked] = useState(false);
 
   async function fetchData() {
     const res = await fetch(`/api/content/${params.contentId}`);
@@ -70,15 +72,18 @@ export default function ContentPage() {
         >
           ← ホームへ
         </Link>
-        {canDelete && (
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-          >
-            {deleting ? "削除中..." : "この投稿を削除"}
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          <StockButton contentId={params.contentId} initialStocked={stocked} size="md" />
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+            >
+              {deleting ? "削除中..." : "この投稿を削除"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* コンテンツ */}
