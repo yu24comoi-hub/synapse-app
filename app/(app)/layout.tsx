@@ -26,8 +26,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Link>
           <nav className="flex items-center gap-3">
             <GroupSwitcher groups={userGroups} activeGroupId={activeGroup.id} />
-            <Link href="/stock" className="text-sm text-gray-400 hover:text-gray-700 transition-colors" title="ストック">
-              🔖
+            <Link href="/unanswered" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+              未回答
             </Link>
             <NotificationBell />
             <Link href="/settings" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">

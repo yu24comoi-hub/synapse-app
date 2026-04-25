@@ -31,7 +31,6 @@ export default async function StockPage() {
                 key={s.content.id}
                 session={s}
                 userId={userId}
-                isStocked={true}
               />
             ) : null
           )}
