@@ -43,7 +43,15 @@ export async function POST() {
   );
 
   const memorySummary = await memory.getSummaryForCuration(group.memberIds, settingsMap);
-  const result = await curate(memorySummary);
+
+  let result: Awaited<ReturnType<typeof curate>>;
+  try {
+    result = await curate(memorySummary);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[curate] Claude API error:", message);
+    return NextResponse.json({ error: `キュレーション失敗: ${message}` }, { status: 500 });
+  }
 
   const content: Content = {
     id: randomUUID(),
