@@ -45,7 +45,8 @@ export async function POST(req: Request) {
   const group = await groups.create(
     name.trim(),
     session.user.id,
-    session.user.name ?? "Anonymous"
+    session.user.name ?? "Anonymous",
+    session.user.email ?? undefined
   );
   return NextResponse.json(group);
 }

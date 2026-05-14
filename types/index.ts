@@ -11,6 +11,7 @@ export type Group = {
   ownerId: string;
   memberIds: string[];
   memberNames: Record<string, string>;
+  memberEmails: Record<string, string>;
   inviteCode: string;
   createdAt: string;
 };

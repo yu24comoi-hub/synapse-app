@@ -30,7 +30,8 @@ export async function POST(req: Request) {
   const group = await groups.join(
     inviteCode,
     session.user.id,
-    session.user.name ?? "Anonymous"
+    session.user.name ?? "Anonymous",
+    session.user.email ?? undefined
   );
   if (!group) {
     return NextResponse.json({ error: "無効な招待コードです" }, { status: 400 });

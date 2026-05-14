@@ -3,13 +3,14 @@ import { randomUUID } from "crypto";
 import type { Group } from "@/types";
 
 export const groups = {
-  async create(name: string, ownerId: string, ownerName: string): Promise<Group> {
+  async create(name: string, ownerId: string, ownerName: string, ownerEmail?: string): Promise<Group> {
     const group: Group = {
       id: randomUUID(),
       name,
       ownerId,
       memberIds: [ownerId],
       memberNames: { [ownerId]: ownerName },
+      memberEmails: { [ownerId]: ownerEmail ?? "" },
       inviteCode: randomUUID().replace(/-/g, "").slice(0, 12),
       createdAt: new Date().toISOString(),
     };
@@ -55,7 +56,7 @@ export const groups = {
     await redis.set(`user:${userId}:activeGroupId`, groupId);
   },
 
-  async join(inviteCode: string, userId: string, userName: string): Promise<Group | null> {
+  async join(inviteCode: string, userId: string, userName: string, userEmail?: string): Promise<Group | null> {
     const groupId = await redis.get<string>(`invite:${inviteCode}`);
     if (!groupId) return null;
     const group = await redis.get<Group>(`group:${groupId}`);
@@ -65,6 +66,8 @@ export const groups = {
       group.memberIds.push(userId);
     }
     group.memberNames[userId] = userName;
+    group.memberEmails = group.memberEmails ?? {};
+    group.memberEmails[userId] = userEmail ?? "";
     await redis.set(`group:${groupId}`, group);
     await addToUserGroups(userId, groupId);
     return group;
